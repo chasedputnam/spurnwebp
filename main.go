@@ -31,7 +31,6 @@ func convertWebp(input string, outputType string) {
 		os.Exit(1)
 	}
 	output = output[0 : len(output)-len(filepath.Ext(output))] // Remove file extension
-
 	f, err := os.Open(input)
 	if err != nil {
 		fmt.Println("Error:", err)
@@ -46,7 +45,7 @@ func convertWebp(input string, outputType string) {
 	}
 	if outputType == "PNG" {
 		// Convert to PNG
-		pngFile, err := os.Create(path + output + ".png")
+		pngFile, err := os.Create(path + "/" + output + ".png")
 		if err != nil {
 			fmt.Println("Error:", err)
 			os.Exit(1)
@@ -54,7 +53,7 @@ func convertWebp(input string, outputType string) {
 		defer func(pngFile *os.File) {
 			err := pngFile.Close()
 			if err != nil {
-
+				fmt.Println("Error:", err)
 			}
 		}(pngFile)
 
@@ -65,7 +64,7 @@ func convertWebp(input string, outputType string) {
 		}
 	} else {
 		// Convert to JPEG
-		jpegFile, err := os.Create(path + output + ".jpeg")
+		jpegFile, err := os.Create(path + "/" + output + ".jpg")
 		if err != nil {
 			fmt.Println("Error:", err)
 			os.Exit(1)
@@ -73,7 +72,7 @@ func convertWebp(input string, outputType string) {
 		defer func(jpegFile *os.File) {
 			err := jpegFile.Close()
 			if err != nil {
-
+				fmt.Println("Error:", err)
 			}
 		}(jpegFile)
 
@@ -136,8 +135,8 @@ func main() {
 				select {
 				// watch for events
 				case event := <-watcher.Events:
-					fmt.Printf("EVENT! %#v\n", event)
-					if strings.HasSuffix(event.Name, ".webp") {
+					//fmt.Printf("EVENT! %#v\n", event)
+					if event.Op.Has(fsnotify.Create) && strings.HasSuffix(event.Name, ".webp") {
 						convertWebp(event.Name, outputType)
 					}
 					// watch for errors
